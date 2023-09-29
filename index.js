@@ -61,9 +61,26 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     ongoingGames[interaction.user.id].roundsPlayed++;
+    const [userScore, botScore] = ongoingGames[interaction.user.id].score;
+    if (ongoingGames[interaction.user.id].roundsPlayed === 2 && (userScore === 2 || botScore == 2)) {
+
+      if (userScore > botScore) {
+        result += "\n\nYou've won without needing a third round! Congratulations!";
+        delete ongoingGames[interaction.user.id];
+        return await interaction.reply(result);
+      } else if (userScore < botScore) {
+        result += "\n\nI've won without needing a third round! Congratulations!";
+        delete ongoingGames[interaction.user.id];
+        return await interaction.reply(result);
+      }
+
+      // Reset or delete the game state for this user
+      delete ongoingGames[interaction.user.id];
+    }
 
     if (ongoingGames[interaction.user.id].roundsPlayed === 3) {
       const [userScore, botScore] = ongoingGames[interaction.user.id].score;
+
       if (userScore > botScore) {
         result += "\n\nYou've won the best of three! Congratulations!";
       } else if (userScore < botScore) {
@@ -75,9 +92,8 @@ client.on("interactionCreate", async (interaction) => {
       // Reset or delete the game state for this user
       delete ongoingGames[interaction.user.id];
     } else {
-      result += `\n\nScore: You - ${
-        ongoingGames[interaction.user.id].score[0]
-      }, Bot - ${ongoingGames[interaction.user.id].score[1]}`;
+      result += `\n\nScore: You - ${ongoingGames[interaction.user.id].score[0]
+        }, Bot - ${ongoingGames[interaction.user.id].score[1]}`;
     }
 
     if (isFirstRound) {
