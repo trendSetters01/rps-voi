@@ -87,7 +87,20 @@ client.on("interactionCreate", async (interaction) => {
   if (ongoingGames[interaction.user.id].roundsPlayed === 2 && (userScore === 2 || botScore == 2)) {
     result += userScore > botScore ? "\n\nYou've won without needing a third round! Congratulations!" : "\n\nI've won without needing a third round! Boooo!";
     delete ongoingGames[interaction.user.id];
-    console.log(result)
+    if (result.includes("You've won")) {
+      if (userAddresses[interaction.user.id]) {
+        const userAddress = userAddresses[interaction.user.id];
+        try {
+          await sendAlgo(userAddress, 1000000);
+          result += "\n\nYou have been rewarded with Algo tokens!";
+        } catch (err) {
+          console.error("Error sending Algo:", err);
+          result += "\n\nThere was an issue rewarding you with Algo tokens. Please try again later.";
+        }
+      } else {
+        result += "\n\nPlease set your Algorand address using the `/setaddress` command to receive rewards.";
+      }
+    }
     return await interaction.reply(result);
   }
 
@@ -102,7 +115,7 @@ client.on("interactionCreate", async (interaction) => {
     if (userAddresses[interaction.user.id]) {
       const userAddress = userAddresses[interaction.user.id];
       try {
-        await sendAlgo(1000000);
+        await sendAlgo(userAddress, 1000000);
         result += "\n\nYou have been rewarded with Algo tokens!";
       } catch (err) {
         console.error("Error sending Algo:", err);

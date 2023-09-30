@@ -26,7 +26,7 @@ const generatedAccount = algosdk.mnemonicToSecretKey(
   mnemonic
 );
 
-async function sendAlgo(amount) {
+async function sendAlgo(address, amount) {
   try {
     // Fetch account details
     const accountInfo = await algodClient.accountInformation(sender).do();
@@ -36,7 +36,7 @@ async function sendAlgo(amount) {
     // Create a transaction
     const txn = {
       from: generatedAccount.addr,
-      to: generatedAccount.addr,
+      to: `${address}`,
       fee: suggestedParams.minFee,
       amount: amount,
       ...suggestedParams,
