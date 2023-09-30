@@ -22,7 +22,7 @@ const sender = "CPBVPZNKFOVIHGG4EDX3PRJ7NDYLKL5RL3JIK2X5HZXVGKDY4E65W62TPM";
 const receiver = "CPBVPZNKFOVIHGG4EDX3PRJ7NDYLKL5RL3JIK2X5HZXVGKDY4E65W62TPM";
 // Setup Account
 const mnemonic = process.env["MNEMONIC"];
-const generatedAccount = algosdk.mnemonicToSecretKey(
+const rewardProviderAccount = algosdk.mnemonicToSecretKey(
   mnemonic
 );
 
@@ -30,12 +30,10 @@ async function sendAlgo(address, amount) {
   try {
     // Fetch account details
     const accountInfo = await algodClient.accountInformation(sender).do();
-    console.log(accountInfo)
     const suggestedParams = await algodClient.getTransactionParams().do();
-    console.log(suggestedParams);
     // Create a transaction
     const txn = {
-      from: generatedAccount.addr,
+      from: rewardProviderAccount.addr,
       to: `${address}`,
       fee: suggestedParams.minFee,
       amount: amount,
@@ -44,7 +42,7 @@ async function sendAlgo(address, amount) {
     };
 
     // Sign the transaction
-    const signedTxn = algosdk.signTransaction(txn, generatedAccount.sk);
+    const signedTxn = algosdk.signTransaction(txn, rewardProviderAccount.sk);
 
     // Send the transaction
     const txConfirmation = await algodClient.sendRawTransaction(signedTxn.blob).do();
