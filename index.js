@@ -1,6 +1,6 @@
 const { Client, IntentsBitField } = require("discord.js");
 const token = process.env["BOT_TOKEN"];
-const { sendAsset, optInToAsset } = require('./algorand');
+const { sendAsset } = require('./algorand');
 
 const client = new Client({
   intents: [
@@ -14,7 +14,7 @@ const client = new Client({
 const ongoingGames = {};
 const userAddresses = {};
 
-const allowedChannelID = process.env['ALLOWED_CHANNEL_ID'];//"1157321716670943342";
+const allowedChannelID = process.env['ALLOWED_CHANNEL_ID'];
 const rewardAmount = 1000000; // 1 Algo in microAlgos
 const choices = ["rock", "paper", "scissors"];
 
@@ -66,12 +66,11 @@ client.on("interactionCreate", async (interaction) => {
       const address = interaction.options.getString('address');
       userAddresses[interaction.user.id] = address;
       await interaction.reply(`Your Algorand address has been set to ${address}`);
-      // Opt-in the user to the asset
+      // ask user to Opt-in to the token 
       try {
-        await optInToAsset(address, 402192759);
-        await interaction.followUp('You have been opted-in for the PHTM token.');
+        await interaction.followUp('Please opt-in for the PHTM token with Asset ID 402192759 to receive rewards!.');
       } catch (error) {
-        await interaction.followUp('There was an issue opting you in for the PHTM token. Please try again later.');
+        console.error(error);
       }
       break;
 

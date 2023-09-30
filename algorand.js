@@ -39,7 +39,7 @@ async function sendAsset(address, amount) {
       undefined, // Close-to address (none in this case)
       undefined, // Sender's address, in case of clawback (none in this case)
       amount,
-      algosdk.encodeObj("Sending ASA with PureStake API"),
+      algosdk.encodeObj("Sending ASA PHTM"),
       402192759, // Asset ID of the ASA you want to send
       suggestedParams
     );
@@ -57,36 +57,6 @@ async function sendAsset(address, amount) {
   }
 }
 
-async function optInToAsset(address) {
-  try {
-    const params = await algodClient.getTransactionParams().do();
-
-    // Construct the opt-in transaction
-    const txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-      rewardProviderAccount.addr,
-      `${address}`,
-      undefined,
-      undefined,
-      0,
-      undefined,
-      402192759,
-      params
-    );
-
-    // Sign the transaction
-    const signedTxn = txn.signTxn(rewardProviderAccount.sk);
-
-    // Send the transaction
-    const sendTx = await algodClient.sendRawTransaction(signedTxn).do();
-
-    console.log("Opt-in transaction sent with ID:", sendTx.txId);
-    return sendTx.txId;
-  } catch (error) {
-    console.error("Error opting in to asset:", error);
-  }
-}
-
 module.exports = {
   sendAsset,
-  optInToAsset
 };
