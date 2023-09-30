@@ -52,9 +52,10 @@ async function sendAlgo(amount) {
     console.log("Transaction ID:", txConfirmation.txId);
     return txConfirmation.txId;
   } catch (error) {
-    // console.error("Error sending Algo:", error);
+    console.error("Error sending Algo:", error);
   }
 }
 
-// Example usage
-sendAlgo(1000000);  // Send 1 Algo (1 Algo = 1,000,000 microAlgos)
+module.exports = {
+  sendAlgo
+};

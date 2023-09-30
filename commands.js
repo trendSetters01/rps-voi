@@ -21,7 +21,18 @@ const commands = [
       },
     ],
   },
+  {
+    name: 'setaddress',
+    description: 'Set your Algorand address',
+    options: [{
+      name: 'address',
+      type: 3,  // STRING type in Discord API is represented by 3
+      description: 'Your Algorand address',
+      required: true
+    }]
+  }
 ];
+
 
 const rest = new REST({
   version: "10",
@@ -38,3 +49,4 @@ const rest = new REST({
     console.log(`${error}`);
   }
 })();
+
