@@ -26,10 +26,14 @@ const commands = [
     description: 'Set your Algorand address',
     options: [{
       name: 'address',
-      type: 3,  // STRING type in Discord API is represented by 3
+      type: 3,
       description: 'Your Algorand address',
       required: true
     }]
+  },
+  {
+    name: 'optin',
+    description: 'Opt-in for the PHTM asset',
   }
 ];
 
