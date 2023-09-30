@@ -41,10 +41,10 @@ async function handleReward(interaction) {
     const userAddress = userAddresses[interaction.user.id];
     try {
       await sendAsset(userAddress, rewardAmount);
-      return "\n\nYou have been rewarded with Algo tokens!";
+      return "\n\nYou have been rewarded with PHTM tokens!";
     } catch (err) {
       console.error("Error sending Algo:", err);
-      return "\n\nThere was an issue rewarding you with Algo tokens. Please try again later.";
+      return "\n\nThere was an issue rewarding you with PHTM tokens. Please try again later.";
     }
   } else {
     return "\n\nPlease set your Algorand address using the `/setaddress` command to receive rewards.";
@@ -72,7 +72,12 @@ client.on("interactionCreate", async (interaction) => {
       const userChoice = interaction.options.getString("choice");
       const botChoice = getBotChoice();
       let result = "";
-
+      if (!userAddresses[interaction.user.id]) {
+        return interaction.reply({
+          content: "Please set your Algorand address using the `/setaddress` command before playing.",
+          ephemeral: true,
+        });
+      }
       if (!ongoingGames[interaction.user.id]) {
         ongoingGames[interaction.user.id] = { score: [0, 0], roundsPlayed: 0 };
         result = "Welcome to Rock, Paper, Scissors - Best of Three!\n\n";
