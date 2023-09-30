@@ -1,6 +1,6 @@
 const { Client, IntentsBitField } = require("discord.js");
 const token = process.env["BOT_TOKEN"];
-const { sendAlgo } = require('./algorand');
+const { sendAsset } = require('./algorand');
 
 const client = new Client({
   intents: [
@@ -40,7 +40,7 @@ async function handleReward(interaction) {
   if (userAddresses[interaction.user.id]) {
     const userAddress = userAddresses[interaction.user.id];
     try {
-      await sendAlgo(userAddress, rewardAmount);
+      await sendAsset(userAddress, rewardAmount);
       return "\n\nYou have been rewarded with Algo tokens!";
     } catch (err) {
       console.error("Error sending Algo:", err);

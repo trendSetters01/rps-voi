@@ -19,27 +19,30 @@ const algoIndexerClient = new algosdk.Indexer(
 );
 
 const sender = "CPBVPZNKFOVIHGG4EDX3PRJ7NDYLKL5RL3JIK2X5HZXVGKDY4E65W62TPM";
-const receiver = "CPBVPZNKFOVIHGG4EDX3PRJ7NDYLKL5RL3JIK2X5HZXVGKDY4E65W62TPM";
+
 // Setup Account
 const mnemonic = process.env["MNEMONIC"];
 const rewardProviderAccount = algosdk.mnemonicToSecretKey(
   mnemonic
 );
 
-async function sendAlgo(address, amount) {
+async function sendAsset(address, amount) {
   try {
     // Fetch account details
     const accountInfo = await algodClient.accountInformation(sender).do();
     const suggestedParams = await algodClient.getTransactionParams().do();
-    // Create a transaction
-    const txn = {
-      from: rewardProviderAccount.addr,
-      to: `${address}`,
-      fee: suggestedParams.minFee,
-      amount: amount,
-      ...suggestedParams,
-      note: algosdk.encodeObj("Sending Algo with PureStake API"),
-    };
+
+    // Create an asset transfer transaction
+    const txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+      rewardProviderAccount.addr,
+      address,
+      undefined, // Close-to address (none in this case)
+      undefined, // Sender's address, in case of clawback (none in this case)
+      amount,
+      algosdk.encodeObj("Sending ASA with PureStake API"),
+      402192759, // Asset ID of the ASA you want to send
+      suggestedParams
+    );
 
     // Sign the transaction
     const signedTxn = algosdk.signTransaction(txn, rewardProviderAccount.sk);
@@ -50,10 +53,11 @@ async function sendAlgo(address, amount) {
     console.log("Transaction ID:", txConfirmation.txId);
     return txConfirmation.txId;
   } catch (error) {
-    console.error("Error sending Algo:", error);
+    console.error("Error sending ASA:", error);
   }
 }
 
+
 module.exports = {
-  sendAlgo
+  sendAsset
 };
