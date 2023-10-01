@@ -37,8 +37,11 @@ const commands = [
   {
     name: 'invite',
     description: 'Get an invite link to add this bot to your server.'
+  },
+  {
+    name: 'gameinfo',
+    description: 'Get gameplay information.'
   }
-
 ];
 
 

@@ -1,4 +1,4 @@
-const { Client, IntentsBitField } = require("discord.js");
+const { Client, IntentsBitField, EmbedBuilder } = require("discord.js");
 const token = process.env["BOT_TOKEN"];
 const { sendAsset } = require('./algorand');
 
@@ -61,69 +61,100 @@ client.on("interactionCreate", async (interaction) => {
     case "setaddress":
       const address = interaction.options.getString('address');
       userAddresses[interaction.user.id] = address;
-      await interaction.reply(`Your Algorand address has been set to ${address}`);
-      // ask user to Opt-in to the token 
+
       try {
-        await interaction.followUp('Please ensure you have opted-in for the PHTM token with Asset ID 402192759 to receive rewards!.');
+        const setAddressEmbed = new EmbedBuilder()
+          .setColor(15548997)
+          .setTitle('Algorand Address Set')
+          .setImage('attachment://discordjs.png')
+          .setDescription(`Your Algorand address has been set to ${address}\n\nPlease ensure you have opted-in for the PHTM token ( Asset ID 402192759 ) to receive rewards!.`);
+
+        await interaction.reply({ embeds: [setAddressEmbed] });
       } catch (error) {
         console.error(error);
       }
+      break;
+    case "gameinfo":
+      const gameInfoEmbed = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setTitle('Rock, Paper, Scissors - Game Info')
+        .setDescription('Welcome to Rock, Paper, Scissors! Here\'s how the game works:')
+        .addFields(
+          { name: '1. Set Address', value: 'Before playing, set your Algorand address using the `/setaddress` command.' },
+          { name: '2. Make a Choice', value: 'Use the `/rps` command followed by your choice: rock, paper, or scissors.' },
+          { name: '3. Play Three Rounds', value: 'The game consists of three rounds. Win the best out of three to get rewarded!' },
+          { name: '4. Get Rewards', value: 'Winners receive PHTM tokens as a reward. Make sure to opt-in for the token on Algorand!' }
+        );
+
+      await interaction.reply({ embeds: [gameInfoEmbed] });
       break;
 
     case "rps":
       const userChoice = interaction.options.getString("choice");
       const botChoice = getBotChoice();
-      let result = "";
-      if (!userAddresses[interaction.user.id]) {
-        return interaction.reply({
-          content: "Please set your Algorand address using the `/setaddress` command before playing.",
-          ephemeral: true,
-        });
-      }
+      // Ensure ongoingGames[interaction.user.id] is initialized
       if (!ongoingGames[interaction.user.id]) {
         ongoingGames[interaction.user.id] = { score: [0, 0], roundsPlayed: 0 };
-        result = "Welcome to Rock, Paper, Scissors - Best of Three!\n\n";
-        result += "Here's how to play:\n";
-        result += "1. Use the `/rps` command followed by your choice (rock, paper, or scissors).\n";
-        result += "2. After three rounds, the winner will be announced.\n\n";
-        result += `Your first choice was ${userChoice}.\n\n`;
       }
+      let embedData = {
+        color: 16705372,
+        title: '🔥 Rock, Paper, Scissors - Round Result!',
+        fields: [],
+        footer: {
+          text: 'Score',
+          icon_url: client.user.displayAvatarURL()
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      if (!userAddresses[interaction.user.id]) {
+        const pleaseSetAddressEmbed = new EmbedBuilder()
+          .setColor(15277667)
+          .setTitle('🚫 Set Algorand Address')
+          .setDescription("Please set your Algorand address using the `/setaddress` command before playing.");
+
+        return await interaction.reply({ embeds: [pleaseSetAddressEmbed], ephemeral: true });
+      }
+
+      embedData.fields.push({ name: '🚀 Your Choice', value: userChoice.toUpperCase(), inline: true });
+      embedData.fields.push({ name: '🤖 Bot\'s Choice', value: botChoice.toUpperCase(), inline: true });
 
       const roundResult = determineRoundResult(userChoice, botChoice);
 
       if (roundResult === "draw") {
-        result += "This round is a draw!";
+        embedData.description = '🔶 This round is a draw!';
       } else if (roundResult === "user") {
-        result += `You win this round! I chose ${botChoice}.`;
+        embedData.description = '✅ You win this round!';
         ongoingGames[interaction.user.id].score[0]++;
       } else {
-        result += `You lose this round! I chose ${botChoice}.`;
+        embedData.description = '❌ You lose this round!';
         ongoingGames[interaction.user.id].score[1]++;
       }
 
       const [userScore, botScore] = ongoingGames[interaction.user.id].score;
       ongoingGames[interaction.user.id].roundsPlayed++;
 
-      if (ongoingGames[interaction.user.id].roundsPlayed === 2 && (userScore === 2 || botScore == 2)) {
-        result += userScore > botScore ? "\n\nYou've won without needing a third round! Congratulations!" : "\n\nI've won without needing a third round! Boooo!";
-        delete ongoingGames[interaction.user.id];
-        if (result.includes("You've won")) {
-          result += await handleReward(interaction);
-        }
-        return await interaction.reply(result);
-      }
+      embedData.footer.text += `: You - ${userScore}, Bot - ${botScore}`;
 
       if (ongoingGames[interaction.user.id].roundsPlayed === 3) {
-        result += userScore > botScore ? "\n\nYou've won the best of three! Congratulations!" : botScore > userScore ? "\n\nYou've lost the best of three. Better luck next time!" : "\n\nIt's a draw in the best of three!";
-        delete ongoingGames[interaction.user.id];
-        if (result.includes("You've won")) {
-          result += await handleReward(interaction);
+        embedData.title = '🎉 Game Over!';
+        if (userScore > botScore) {
+          embedData.description = "🎖 You've won the best of three! Congratulations!";
+        } else if (botScore > userScore) {
+          embedData.description = "😢 You've lost the best of three. Try again!";
+        } else {
+          embedData.description = "🔶 It's a draw in the best of three!";
         }
-      } else {
-        result += `\n\nScore: You - ${userScore}, Bot - ${botScore}`;
+        delete ongoingGames[interaction.user.id];
+        if (embedData.description.includes("You've won")) {
+          embedData.fields.push({ name: '🎁 Reward', value: await handleReward(interaction) });
+        }
       }
 
-      await interaction.reply(result);
+      await interaction.reply({ embeds: [embedData] });
+      break;
+    default:
+      await interaction.reply('Please try again later.');
       break;
   }
 });
