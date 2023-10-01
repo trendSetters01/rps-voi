@@ -14,7 +14,6 @@ const client = new Client({
 const ongoingGames = {};
 const userAddresses = {};
 
-const allowedChannelID = process.env['ALLOWED_CHANNEL_ID'];
 const rewardAmount = 1000000; // 1 Algo in microAlgos
 const choices = ["rock", "paper", "scissors"];
 
@@ -54,21 +53,18 @@ async function handleReward(interaction) {
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
 
-  if (interaction.channelId !== allowedChannelID) {
-    return interaction.reply({
-      content: "You can't use this command here! Please go to the rock-paper-scissors channel under Games.",
-      ephemeral: true,
-    });
-  }
-
   switch (interaction.commandName) {
+    case "invite":
+      const inviteLink = 'https://discord.com/api/oauth2/authorize?client_id=1157322558966857808&permissions=17877801569345&scope=bot%20applications.commands';
+      await interaction.reply(`Click [here](${inviteLink}) to invite the bot to your server!`);
+      break;
     case "setaddress":
       const address = interaction.options.getString('address');
       userAddresses[interaction.user.id] = address;
       await interaction.reply(`Your Algorand address has been set to ${address}`);
       // ask user to Opt-in to the token 
       try {
-        await interaction.followUp('Please opt-in for the PHTM token with Asset ID 402192759 to receive rewards!.');
+        await interaction.followUp('Please ensure you have opted-in for the PHTM token with Asset ID 402192759 to receive rewards!.');
       } catch (error) {
         console.error(error);
       }

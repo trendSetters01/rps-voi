@@ -1,7 +1,6 @@
 const { REST, Routes } = require("discord.js");
 const token = process.env["BOT_TOKEN"];
 const clientID = process.env["CLIENT_ID"];
-const guildID = process.env["GUILD_ID"];
 
 const commands = [
   {
@@ -33,8 +32,13 @@ const commands = [
   },
   {
     name: 'optin',
-    description: 'Opt-in for the PHTM asset',
+    description: 'Opt-in for the PHTM asset (inactive)',
+  },
+  {
+    name: 'invite',
+    description: 'Get an invite link to add this bot to your server.'
   }
+
 ];
 
 
@@ -44,8 +48,8 @@ const rest = new REST({
 
 (async () => {
   try {
-    console.log("Registering slash commands");
-    await rest.put(Routes.applicationGuildCommands(clientID, `${guildID}`), {
+    console.log("Registering global slash commands");
+    await rest.put(Routes.applicationCommands(clientID), {
       body: commands,
     });
     console.log("Slash commands were registered succesfully");
