@@ -22,11 +22,11 @@ const commands = [
   },
   {
     name: 'setaddress',
-    description: 'Set your Algorand address',
+    description: 'Set your Algorand address (Testnet)',
     options: [{
       name: 'address',
       type: 3,
-      description: 'Your Algorand address',
+      description: 'Your Algorand address (Testnet)',
       required: true
     }]
   },

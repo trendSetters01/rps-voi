@@ -65,9 +65,9 @@ client.on("interactionCreate", async (interaction) => {
       try {
         const setAddressEmbed = new EmbedBuilder()
           .setColor(15548997)
-          .setTitle('Algorand Address Set')
+          .setTitle('Algorand Address (Testnet)')
           .setImage('attachment://discordjs.png')
-          .setDescription(`Your Algorand address has been set to ${address}\n\nPlease ensure you have opted-in for the PHTM token ( Asset ID 402192759 ) to receive rewards!.`);
+          .setDescription(`Your Algorand address (on testnet) has been set to ${address}\n\nPlease ensure you have opted-in for the PHTM token ( Asset ID 402192759 ) to receive rewards!.`);
 
         await interaction.reply({ embeds: [setAddressEmbed] });
       } catch (error) {
@@ -77,13 +77,14 @@ client.on("interactionCreate", async (interaction) => {
     case "gameinfo":
       const gameInfoEmbed = new EmbedBuilder()
         .setColor(0x0099FF)
-        .setTitle('Rock, Paper, Scissors - Game Info')
+        .setTitle('Rock, Paper, Scissors (Testnet) - Game Info')
         .setDescription('Welcome to Rock, Paper, Scissors! Here\'s how the game works:')
         .addFields(
           { name: '1. Set Address', value: 'Before playing, set your Algorand address using the `/setaddress` command.' },
           { name: '2. Make a Choice', value: 'Use the `/rps` command followed by your choice: rock, paper, or scissors.' },
           { name: '3. Play Three Rounds', value: 'The game consists of three rounds. Win the best out of three to get rewarded!' },
-          { name: '4. Get Rewards', value: 'Winners receive PHTM tokens as a reward. Make sure to opt-in for the token on Algorand!' }
+          { name: '4. Get Rewards', value: 'Winners receive PHTM tokens as a reward. Make sure to opt-in for the token on Algorand (Testnet)!' },
+          { name: '🔶 Notice', value: 'This game operates on the Algorand testnet. All transactions and rewards are on the testnet.' }
         );
 
       await interaction.reply({ embeds: [gameInfoEmbed] });
@@ -102,7 +103,7 @@ client.on("interactionCreate", async (interaction) => {
         fields: [],
         footer: {
           text: 'Score',
-          icon_url: client.user.displayAvatarURL()
+          icon_url: interaction.user.displayAvatarURL({ format: 'png', dynamic: true })
         },
         timestamp: new Date().toISOString(),
       };
@@ -110,8 +111,8 @@ client.on("interactionCreate", async (interaction) => {
       if (!userAddresses[interaction.user.id]) {
         const pleaseSetAddressEmbed = new EmbedBuilder()
           .setColor(15277667)
-          .setTitle('🚫 Set Algorand Address')
-          .setDescription("Please set your Algorand address using the `/setaddress` command before playing.");
+          .setTitle('🚫 Algorand Address (Testnet)')
+          .setDescription("Please set your Algorand address (on testnet) using the `/setaddress` command before playing.");
 
         return await interaction.reply({ embeds: [pleaseSetAddressEmbed], ephemeral: true });
       }
