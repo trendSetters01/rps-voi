@@ -1,11 +1,5 @@
 import { deleteOngoingGame } from '../state/index.js';
 import { handleReward } from '../utils/handleReward.js';
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-
-const row = new ActionRowBuilder().addComponents(
-  new ButtonBuilder().setCustomId('playAgain').setLabel('Play Again').setStyle(ButtonStyle.Primary),
-  new ButtonBuilder().setCustomId('quit').setLabel('Quit').setStyle(ButtonStyle.Danger),
-);
 
 async function createGameResultEmbed(interaction, userChoice, botChoice, roundResult, currentGame) {
   const embedData = {
@@ -51,7 +45,7 @@ async function createGameResultEmbed(interaction, userChoice, botChoice, roundRe
     }
   }
 
-  return [embedData, row];
+  return embedData;
 }
 
 export { createGameResultEmbed };
