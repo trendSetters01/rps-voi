@@ -1,5 +1,6 @@
 import { Client, IntentsBitField, EmbedBuilder } from "discord.js";
 import { sendAsset } from './algorand.js';
+import { CHOICES, RESULTS, determineRoundResult } from './utils/index.js';
 
 const token = process.env["BOT_TOKEN"];
 
@@ -24,16 +25,6 @@ client.on("ready", (c) => {
 
 function getBotChoice() {
   return choices[Math.floor(Math.random() * choices.length)];
-}
-
-function determineRoundResult(userChoice, botChoice) {
-  if (userChoice === botChoice) return "draw";
-  if (
-    (userChoice === "rock" && botChoice === "scissors") ||
-    (userChoice === "scissors" && botChoice === "paper") ||
-    (userChoice === "paper" && botChoice === "rock")
-  ) return "user";
-  return "bot";
 }
 
 async function handleReward(interaction) {
