@@ -15,7 +15,6 @@ const client = new Client({
   ],
 });
 
-// const ongoingGames = {};
 const rewardAmount = 1000000; // 1 Algo in microAlgos
 const choices = ["rock", "paper", "scissors"];
 
@@ -35,9 +34,24 @@ function createSetAddressEmbed(address) {
     .setDescription(`Your Algorand address (on testnet) has been set to ${address}\n\nPlease ensure you have opted-in for the PHTM token ( Asset ID 402192759 ) to receive rewards!.`);
 }
 
+function createGameInfoEmbed() {
+  return new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle('Rock, Paper, Scissors (Testnet) - Game Info')
+    .setDescription('Welcome to Rock, Paper, Scissors! Here\'s how the game works:')
+    .addFields(
+      { name: '1. Set Address', value: 'Before playing, set your Algorand address using the `/setaddress` command.' },
+      { name: '2. Make a Choice', value: 'Use the `/rps` command followed by your choice: rock, paper, or scissors.' },
+      { name: '3. Play Three Rounds', value: 'The game consists of three rounds. Win the best out of three to get rewarded!' },
+      { name: '4. Get Rewards', value: 'Winners receive PHTM tokens as a reward. Make sure to opt-in for the token on Algorand (Testnet)!' },
+      { name: '🔶 Notice', value: 'This game operates on the Algorand testnet. All transactions and rewards are on the testnet.' }
+    );
+}
+
+
 
 async function handleReward(interaction) {
-  const userAddress = getUserAddress(interaction.user.id);  // Using getUserAddress from stateManager.js
+  const userAddress = getUserAddress(interaction.user.id);
   if (userAddress) {
     try {
       await sendAsset(userAddress, rewardAmount);
@@ -71,21 +85,9 @@ client.on("interactionCreate", async (interaction) => {
       }
       break;
     case "gameinfo":
-      const gameInfoEmbed = new EmbedBuilder()
-        .setColor(0x0099FF)
-        .setTitle('Rock, Paper, Scissors (Testnet) - Game Info')
-        .setDescription('Welcome to Rock, Paper, Scissors! Here\'s how the game works:')
-        .addFields(
-          { name: '1. Set Address', value: 'Before playing, set your Algorand address using the `/setaddress` command.' },
-          { name: '2. Make a Choice', value: 'Use the `/rps` command followed by your choice: rock, paper, or scissors.' },
-          { name: '3. Play Three Rounds', value: 'The game consists of three rounds. Win the best out of three to get rewarded!' },
-          { name: '4. Get Rewards', value: 'Winners receive PHTM tokens as a reward. Make sure to opt-in for the token on Algorand (Testnet)!' },
-          { name: '🔶 Notice', value: 'This game operates on the Algorand testnet. All transactions and rewards are on the testnet.' }
-        );
-
+      const gameInfoEmbed = createGameInfoEmbed();
       await interaction.reply({ embeds: [gameInfoEmbed] });
       break;
-
     case "rps":
       const userChoice = interaction.options.getString("choice");
       const botChoice = getBotChoice();
