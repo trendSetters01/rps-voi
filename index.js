@@ -48,7 +48,52 @@ function createGameInfoEmbed() {
     );
 }
 
+async function createGameResultEmbed(interaction, userChoice, botChoice, roundResult, currentGame) {
+  const embedData = {
+    color: 16705372,
+    title: '🔥 Rock, Paper, Scissors - Round Result!',
+    fields: [],
+    footer: {
+      text: 'Score',
+      icon_url: interaction.user.displayAvatarURL({ format: 'png', dynamic: true })
+    },
+    timestamp: new Date().toISOString(),
+  };
 
+  embedData.fields.push({ name: '🚀 Your Choice', value: userChoice.toUpperCase(), inline: true });
+  embedData.fields.push({ name: '🤖 Bot\'s Choice', value: botChoice.toUpperCase(), inline: true });
+
+  if (roundResult === "draw") {
+    embedData.description = '🔶 This round is a draw!';
+  } else if (roundResult === "user") {
+    embedData.description = '✅ You win this round!';
+    currentGame.score[0]++;
+  } else {
+    embedData.description = '❌ You lose this round!';
+    currentGame.score[1]++;
+  }
+
+  const [userScore, botScore] = currentGame.score;
+  currentGame.roundsPlayed++;
+  embedData.footer.text += `: You - ${userScore}, Bot - ${botScore}`;
+
+  if (currentGame.roundsPlayed === 3) {
+    embedData.title = '🎉 Game Over!';
+    if (userScore > botScore) {
+      embedData.description = "🎖 You've won the best of three! Congratulations!";
+    } else if (botScore > userScore) {
+      embedData.description = "😢 You've lost the best of three. Try again!";
+    } else {
+      embedData.description = "🔶 It's a draw in the best of three!";
+    }
+    deleteOngoingGame(interaction.user.id);
+    if (embedData.description.includes("You've won")) {
+      embedData.fields.push({ name: '🎁 Reward', value: await handleReward(interaction) });
+    }
+  }
+
+  return embedData;
+}
 
 async function handleReward(interaction) {
   const userAddress = getUserAddress(interaction.user.id);
@@ -100,17 +145,6 @@ client.on("interactionCreate", async (interaction) => {
       // Fetch the current game state
       const currentGame = getOngoingGame(interaction.user.id);
 
-      let embedData = {
-        color: 16705372,
-        title: '🔥 Rock, Paper, Scissors - Round Result!',
-        fields: [],
-        footer: {
-          text: 'Score',
-          icon_url: interaction.user.displayAvatarURL({ format: 'png', dynamic: true })
-        },
-        timestamp: new Date().toISOString(),
-      };
-
       if (!getUserAddress(interaction.user.id)) {
         const pleaseSetAddressEmbed = new EmbedBuilder()
           .setColor(15277667)
@@ -120,42 +154,11 @@ client.on("interactionCreate", async (interaction) => {
         return await interaction.reply({ embeds: [pleaseSetAddressEmbed], ephemeral: true });
       }
 
-      embedData.fields.push({ name: '🚀 Your Choice', value: userChoice.toUpperCase(), inline: true });
-      embedData.fields.push({ name: '🤖 Bot\'s Choice', value: botChoice.toUpperCase(), inline: true });
-
       const roundResult = determineRoundResult(userChoice, botChoice);
-
-      if (roundResult === "draw") {
-        embedData.description = '🔶 This round is a draw!';
-      } else if (roundResult === "user") {
-        embedData.description = '✅ You win this round!';
-        currentGame.score[0]++;
-      } else {
-        embedData.description = '❌ You lose this round!';
-        currentGame.score[1]++;
-      }
-
-      const [userScore, botScore] = currentGame.score;
-      currentGame.roundsPlayed++;
-
-      embedData.footer.text += `: You - ${userScore}, Bot - ${botScore}`;
-
-      if (currentGame.roundsPlayed === 3) {
-        embedData.title = '🎉 Game Over!';
-        if (userScore > botScore) {
-          embedData.description = "🎖 You've won the best of three! Congratulations!";
-        } else if (botScore > userScore) {
-          embedData.description = "😢 You've lost the best of three. Try again!";
-        } else {
-          embedData.description = "🔶 It's a draw in the best of three!";
-        }
-        deleteOngoingGame(interaction.user.id);
-        if (embedData.description.includes("You've won")) {
-          embedData.fields.push({ name: '🎁 Reward', value: await handleReward(interaction) });
-        }
-      }
-      await interaction.reply({ embeds: [embedData] });
+      const gameResultEmbed = await createGameResultEmbed(interaction, userChoice, botChoice, roundResult, currentGame);
+      await interaction.reply({ embeds: [gameResultEmbed] });
       break;
+
 
     default:
       await interaction.reply('Please try again later.');
