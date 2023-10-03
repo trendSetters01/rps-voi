@@ -1,4 +1,4 @@
-import { sendAsset } from '../algorand.js';
+import { sendAsset } from '../algorand/algorand.js';
 import { getUserAddress, deleteOngoingGame } from '../state/index.js';
 
 const rewardAmount = 1000000; // 1 Algo in microAlgos
