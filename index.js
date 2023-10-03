@@ -27,6 +27,15 @@ function getBotChoice() {
   return choices[Math.floor(Math.random() * choices.length)];
 }
 
+function createSetAddressEmbed(address) {
+  return new EmbedBuilder()
+    .setColor(15548997)
+    .setTitle('Algorand Address (Testnet)')
+    .setImage('attachment://discordjs.png')
+    .setDescription(`Your Algorand address (on testnet) has been set to ${address}\n\nPlease ensure you have opted-in for the PHTM token ( Asset ID 402192759 ) to receive rewards!.`);
+}
+
+
 async function handleReward(interaction) {
   const userAddress = getUserAddress(interaction.user.id);  // Using getUserAddress from stateManager.js
   if (userAddress) {
@@ -55,12 +64,7 @@ client.on("interactionCreate", async (interaction) => {
       setUserAddress(interaction.user.id, address);
 
       try {
-        const setAddressEmbed = new EmbedBuilder()
-          .setColor(15548997)
-          .setTitle('Algorand Address (Testnet)')
-          .setImage('attachment://discordjs.png')
-          .setDescription(`Your Algorand address (on testnet) has been set to ${address}\n\nPlease ensure you have opted-in for the PHTM token ( Asset ID 402192759 ) to receive rewards!.`);
-
+        const setAddressEmbed = createSetAddressEmbed(address);
         await interaction.reply({ embeds: [setAddressEmbed] });
       } catch (error) {
         console.error(error);
