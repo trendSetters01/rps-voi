@@ -1,6 +1,7 @@
 import { Client, IntentsBitField, EmbedBuilder } from "discord.js";
 import { sendAsset } from './algorand.js';
-import { CHOICES, RESULTS, determineRoundResult } from './utils/index.js';
+import { determineRoundResult } from './utils/index.js';
+import { setUserAddress, getUserAddress } from './state/index.js';
 
 const token = process.env["BOT_TOKEN"];
 
@@ -14,8 +15,6 @@ const client = new Client({
 });
 
 const ongoingGames = {};
-const userAddresses = {};
-
 const rewardAmount = 1000000; // 1 Algo in microAlgos
 const choices = ["rock", "paper", "scissors"];
 
@@ -28,8 +27,8 @@ function getBotChoice() {
 }
 
 async function handleReward(interaction) {
-  if (userAddresses[interaction.user.id]) {
-    const userAddress = userAddresses[interaction.user.id];
+  const userAddress = getUserAddress(interaction.user.id);  // Using getUserAddress from stateManager.js
+  if (userAddress) {
     try {
       await sendAsset(userAddress, rewardAmount);
       return "\n\nYou have been rewarded with PHTM tokens!";
@@ -52,7 +51,7 @@ client.on("interactionCreate", async (interaction) => {
       break;
     case "setaddress":
       const address = interaction.options.getString('address');
-      userAddresses[interaction.user.id] = address;
+      setUserAddress(interaction.user.id, address);
 
       try {
         const setAddressEmbed = new EmbedBuilder()
@@ -100,7 +99,7 @@ client.on("interactionCreate", async (interaction) => {
         timestamp: new Date().toISOString(),
       };
 
-      if (!userAddresses[interaction.user.id]) {
+      if (!getUserAddress(interaction.user.id)) {
         const pleaseSetAddressEmbed = new EmbedBuilder()
           .setColor(15277667)
           .setTitle('🚫 Algorand Address (Testnet)')
