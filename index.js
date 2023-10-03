@@ -1,5 +1,5 @@
 import { Client, IntentsBitField } from "discord.js";
-import { determineRoundResult } from './utils/index.js';
+import { determineRoundResult, getBotChoice } from './utils/index.js';
 import { setUserAddress, getUserAddress, getOngoingGame, setOngoingGame } from './state/index.js';
 import { createSetAddressEmbed, createGameInfoEmbed, createGameResultEmbed, sendSetAddressReminderEmbed } from './embeds/index.js';
 
@@ -14,15 +14,9 @@ const client = new Client({
   ],
 });
 
-const choices = ["rock", "paper", "scissors"];
-
 client.on("ready", (c) => {
   console.log(`${c.user.tag} is online`);
 });
-
-function getBotChoice() {
-  return choices[Math.floor(Math.random() * choices.length)];
-}
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
