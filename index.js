@@ -2,6 +2,7 @@ import { Client, IntentsBitField, EmbedBuilder } from "discord.js";
 import { sendAsset } from './algorand.js';
 import { determineRoundResult } from './utils/index.js';
 import { setUserAddress, getUserAddress } from './state/index.js';
+import { getOngoingGame, setOngoingGame, deleteOngoingGame } from './state/gameManager.js';
 
 const token = process.env["BOT_TOKEN"];
 
@@ -14,7 +15,7 @@ const client = new Client({
   ],
 });
 
-const ongoingGames = {};
+// const ongoingGames = {};
 const rewardAmount = 1000000; // 1 Algo in microAlgos
 const choices = ["rock", "paper", "scissors"];
 
@@ -84,10 +85,15 @@ client.on("interactionCreate", async (interaction) => {
     case "rps":
       const userChoice = interaction.options.getString("choice");
       const botChoice = getBotChoice();
+
       // Ensure ongoingGames[interaction.user.id] is initialized
-      if (!ongoingGames[interaction.user.id]) {
-        ongoingGames[interaction.user.id] = { score: [0, 0], roundsPlayed: 0 };
+      if (!getOngoingGame(interaction.user.id)) {
+        setOngoingGame(interaction.user.id, { score: [0, 0], roundsPlayed: 0 });
       }
+
+      // Fetch the current game state
+      const currentGame = getOngoingGame(interaction.user.id);
+
       let embedData = {
         color: 16705372,
         title: '🔥 Rock, Paper, Scissors - Round Result!',
@@ -117,18 +123,18 @@ client.on("interactionCreate", async (interaction) => {
         embedData.description = '🔶 This round is a draw!';
       } else if (roundResult === "user") {
         embedData.description = '✅ You win this round!';
-        ongoingGames[interaction.user.id].score[0]++;
+        currentGame.score[0]++;
       } else {
         embedData.description = '❌ You lose this round!';
-        ongoingGames[interaction.user.id].score[1]++;
+        currentGame.score[1]++;
       }
 
-      const [userScore, botScore] = ongoingGames[interaction.user.id].score;
-      ongoingGames[interaction.user.id].roundsPlayed++;
+      const [userScore, botScore] = currentGame.score;
+      currentGame.roundsPlayed++;
 
       embedData.footer.text += `: You - ${userScore}, Bot - ${botScore}`;
 
-      if (ongoingGames[interaction.user.id].roundsPlayed === 3) {
+      if (currentGame.roundsPlayed === 3) {
         embedData.title = '🎉 Game Over!';
         if (userScore > botScore) {
           embedData.description = "🎖 You've won the best of three! Congratulations!";
@@ -137,14 +143,14 @@ client.on("interactionCreate", async (interaction) => {
         } else {
           embedData.description = "🔶 It's a draw in the best of three!";
         }
-        delete ongoingGames[interaction.user.id];
+        deleteOngoingGame(interaction.user.id);
         if (embedData.description.includes("You've won")) {
           embedData.fields.push({ name: '🎁 Reward', value: await handleReward(interaction) });
         }
       }
-
       await interaction.reply({ embeds: [embedData] });
       break;
+
     default:
       await interaction.reply('Please try again later.');
       break;
