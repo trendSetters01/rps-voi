@@ -20,7 +20,6 @@ client.on("ready", (c) => {
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
-
   switch (interaction.commandName) {
     case "invite":
       const inviteLink = 'https://discord.com/api/oauth2/authorize?client_id=1157322558966857808&permissions=17877801569345&scope=bot%20applications.commands';
@@ -29,7 +28,6 @@ client.on("interactionCreate", async (interaction) => {
     case "setaddress":
       const address = interaction.options.getString('address');
       setUserAddress(interaction.user.id, address);
-
       try {
         const setAddressEmbed = createSetAddressEmbed(address);
         await interaction.reply({ embeds: [setAddressEmbed] });
@@ -44,23 +42,19 @@ client.on("interactionCreate", async (interaction) => {
     case "rps":
       const userChoice = interaction.options.getString("choice");
       const botChoice = getBotChoice();
-
       // Ensure ongoingGames[interaction.user.id] is initialized
       if (!getOngoingGame(interaction.user.id)) {
         setOngoingGame(interaction.user.id, { score: [0, 0], roundsPlayed: 0 });
       }
       // Fetch the current game state
       const currentGame = getOngoingGame(interaction.user.id);
-
       if (!getUserAddress(interaction.user.id)) {
         return await sendSetAddressReminderEmbed(interaction);
       }
-
       const roundResult = determineRoundResult(userChoice, botChoice);
       const gameResultEmbed = await createGameResultEmbed(interaction, userChoice, botChoice, roundResult, currentGame);
       await interaction.reply({ embeds: [gameResultEmbed] });
       break;
-
     default:
       await interaction.reply('Please try again later.');
       break;
