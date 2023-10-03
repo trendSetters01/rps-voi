@@ -1,8 +1,7 @@
-import { Client, IntentsBitField, EmbedBuilder } from "discord.js";
-import { sendAsset } from './algorand.js';
+import { Client, IntentsBitField } from "discord.js";
 import { determineRoundResult } from './utils/index.js';
-import { setUserAddress, getUserAddress } from './state/index.js';
-import { getOngoingGame, setOngoingGame, deleteOngoingGame } from './state/gameManager.js';
+import { setUserAddress, getUserAddress, getOngoingGame, setOngoingGame } from './state/index.js';
+import { createSetAddressEmbed, createGameInfoEmbed, createGameResultEmbed, sendSetAddressReminderEmbed } from './embeds/index.js';
 
 const token = process.env["BOT_TOKEN"];
 
@@ -15,7 +14,6 @@ const client = new Client({
   ],
 });
 
-const rewardAmount = 1000000; // 1 Algo in microAlgos
 const choices = ["rock", "paper", "scissors"];
 
 client.on("ready", (c) => {
@@ -24,90 +22,6 @@ client.on("ready", (c) => {
 
 function getBotChoice() {
   return choices[Math.floor(Math.random() * choices.length)];
-}
-
-function createSetAddressEmbed(address) {
-  return new EmbedBuilder()
-    .setColor(15548997)
-    .setTitle('Algorand Address (Testnet)')
-    .setImage('attachment://discordjs.png')
-    .setDescription(`Your Algorand address (on testnet) has been set to ${address}\n\nPlease ensure you have opted-in for the PHTM token ( Asset ID 402192759 ) to receive rewards!.`);
-}
-
-function createGameInfoEmbed() {
-  return new EmbedBuilder()
-    .setColor(0x0099FF)
-    .setTitle('Rock, Paper, Scissors (Testnet) - Game Info')
-    .setDescription('Welcome to Rock, Paper, Scissors! Here\'s how the game works:')
-    .addFields(
-      { name: '1. Set Address', value: 'Before playing, set your Algorand address using the `/setaddress` command.' },
-      { name: '2. Make a Choice', value: 'Use the `/rps` command followed by your choice: rock, paper, or scissors.' },
-      { name: '3. Play Three Rounds', value: 'The game consists of three rounds. Win the best out of three to get rewarded!' },
-      { name: '4. Get Rewards', value: 'Winners receive PHTM tokens as a reward. Make sure to opt-in for the token on Algorand (Testnet)!' },
-      { name: '🔶 Notice', value: 'This game operates on the Algorand testnet. All transactions and rewards are on the testnet.' }
-    );
-}
-
-async function createGameResultEmbed(interaction, userChoice, botChoice, roundResult, currentGame) {
-  const embedData = {
-    color: 16705372,
-    title: '🔥 Rock, Paper, Scissors - Round Result!',
-    fields: [],
-    footer: {
-      text: 'Score',
-      icon_url: interaction.user.displayAvatarURL({ format: 'png', dynamic: true })
-    },
-    timestamp: new Date().toISOString(),
-  };
-
-  embedData.fields.push({ name: '🚀 Your Choice', value: userChoice.toUpperCase(), inline: true });
-  embedData.fields.push({ name: '🤖 Bot\'s Choice', value: botChoice.toUpperCase(), inline: true });
-
-  if (roundResult === "draw") {
-    embedData.description = '🔶 This round is a draw!';
-  } else if (roundResult === "user") {
-    embedData.description = '✅ You win this round!';
-    currentGame.score[0]++;
-  } else {
-    embedData.description = '❌ You lose this round!';
-    currentGame.score[1]++;
-  }
-
-  const [userScore, botScore] = currentGame.score;
-  currentGame.roundsPlayed++;
-  embedData.footer.text += `: You - ${userScore}, Bot - ${botScore}`;
-
-  if (currentGame.roundsPlayed === 3) {
-    embedData.title = '🎉 Game Over!';
-    if (userScore > botScore) {
-      embedData.description = "🎖 You've won the best of three! Congratulations!";
-    } else if (botScore > userScore) {
-      embedData.description = "😢 You've lost the best of three. Try again!";
-    } else {
-      embedData.description = "🔶 It's a draw in the best of three!";
-    }
-    deleteOngoingGame(interaction.user.id);
-    if (embedData.description.includes("You've won")) {
-      embedData.fields.push({ name: '🎁 Reward', value: await handleReward(interaction) });
-    }
-  }
-
-  return embedData;
-}
-
-async function handleReward(interaction) {
-  const userAddress = getUserAddress(interaction.user.id);
-  if (userAddress) {
-    try {
-      await sendAsset(userAddress, rewardAmount);
-      return "\n\nYou have been rewarded with PHTM tokens!";
-    } catch (err) {
-      console.error("Error sending Algo:", err);
-      return "\n\nThere was an issue rewarding you with PHTM tokens. Please try again later.";
-    }
-  } else {
-    return "\n\nPlease set your Algorand address using the `/setaddress` command to receive rewards.";
-  }
 }
 
 client.on("interactionCreate", async (interaction) => {
@@ -141,24 +55,17 @@ client.on("interactionCreate", async (interaction) => {
       if (!getOngoingGame(interaction.user.id)) {
         setOngoingGame(interaction.user.id, { score: [0, 0], roundsPlayed: 0 });
       }
-
       // Fetch the current game state
       const currentGame = getOngoingGame(interaction.user.id);
 
       if (!getUserAddress(interaction.user.id)) {
-        const pleaseSetAddressEmbed = new EmbedBuilder()
-          .setColor(15277667)
-          .setTitle('🚫 Algorand Address (Testnet)')
-          .setDescription("Please set your Algorand address (on testnet) using the `/setaddress` command before playing.");
-
-        return await interaction.reply({ embeds: [pleaseSetAddressEmbed], ephemeral: true });
+        return await sendSetAddressReminderEmbed(interaction);
       }
 
       const roundResult = determineRoundResult(userChoice, botChoice);
       const gameResultEmbed = await createGameResultEmbed(interaction, userChoice, botChoice, roundResult, currentGame);
       await interaction.reply({ embeds: [gameResultEmbed] });
       break;
-
 
     default:
       await interaction.reply('Please try again later.');
