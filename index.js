@@ -48,8 +48,8 @@ client.on("interactionCreate", async (interaction) => {
           return await sendSetAddressReminderEmbed(interaction);
         }
         const roundResult = determineRoundResult(userChoice, botChoice);
-        const gameResultEmbed = await createGameResultEmbed(interaction, userChoice, botChoice, roundResult, currentGame);
-        await interaction.reply({ embeds: [gameResultEmbed] });
+        const [embedData] = await createGameResultEmbed(interaction, userChoice, botChoice, roundResult, currentGame);
+        await interaction.reply({ embeds: [embedData] });
         break;
       default:
         await interaction.reply('Please try again later.');
