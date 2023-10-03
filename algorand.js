@@ -1,4 +1,4 @@
-const algosdk = require("algosdk");
+import algosdk from "algosdk";
 
 const ALGOD_API_ADDR = "https://testnet-algorand.api.purestake.io/ps2";
 const ALGOD_PORT = "";
@@ -26,7 +26,7 @@ const rewardProviderAccount = algosdk.mnemonicToSecretKey(
   mnemonic
 );
 
-async function sendAsset(address, amount) {
+export async function sendAsset(address, amount) {
   try {
     // Fetch account details
     const accountInfo = await algodClient.accountInformation(sender).do();
@@ -56,7 +56,3 @@ async function sendAsset(address, amount) {
     console.error("Error sending ASA:", error);
   }
 }
-
-module.exports = {
-  sendAsset,
-};

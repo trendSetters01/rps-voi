@@ -1,6 +1,7 @@
-const { Client, IntentsBitField, EmbedBuilder } = require("discord.js");
+import { Client, IntentsBitField, EmbedBuilder } from "discord.js";
+import { sendAsset } from './algorand.js';
+
 const token = process.env["BOT_TOKEN"];
-const { sendAsset } = require('./algorand');
 
 const client = new Client({
   intents: [
