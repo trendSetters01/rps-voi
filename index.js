@@ -16,8 +16,6 @@ client.on("ready", (c) => {
   console.log(`${c.user.tag} is online`);
 });
 
-client.on("interactionCreate",
-  handleInteraction
-);
+client.on("interactionCreate", handleInteraction);
 
 client.login(token);
