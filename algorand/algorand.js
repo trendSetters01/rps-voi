@@ -13,6 +13,7 @@ export const algoIndexerClient = new algosdk.Indexer(ALGOD_API_TOKEN, ALGOD_INDE
 
 const mnemonic = process.env["MNEMONIC"];
 const rewardProviderAccount = algosdk.mnemonicToSecretKey(mnemonic);
+const assetId = 402192759;
 
 export function calculateMultiplier(tokenHolding) {
   const c = 70;
@@ -20,7 +21,6 @@ export function calculateMultiplier(tokenHolding) {
 }
 
 export async function getUserTokenHolding(address) {
-  const assetId = 402192759;
   try {
     const response = await algoIndexerClient.lookupAssetBalances(assetId).do();
     for (let balanceInfo of response.balances) {
@@ -52,7 +52,7 @@ export async function sendAsset(address, baseAmount) {
       undefined,
       finalRewardAmount,
       algosdk.encodeObj("Sending ASA PHTM"),
-      402192759,
+      assetId,
       suggestedParams
     );
 
