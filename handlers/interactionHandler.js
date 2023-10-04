@@ -3,7 +3,7 @@ async function handleInteraction(interaction) {
 
   try {
     // Dynamically import the command based on the command name
-    const commandModule = await import(`./commands/${interaction.commandName}.js`);
+    const commandModule = await import(`./commandHandlers/${interaction.commandName}.js`);
     const commandFunctionName = `handle${interaction.commandName.charAt(0).toUpperCase() + interaction.commandName.slice(1)}`;
     if (commandModule && commandModule[commandFunctionName]) {
       await commandModule[commandFunctionName](interaction);
