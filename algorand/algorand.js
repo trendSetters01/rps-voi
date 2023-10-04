@@ -1,53 +1,62 @@
 import algosdk from "algosdk";
 
 const ALGOD_API_ADDR = "https://testnet-algorand.api.purestake.io/ps2";
+const ALGOD_INDEXER_ADDR = "https://testnet-algorand.api.purestake.io/idx2";
 const ALGOD_PORT = "";
 const PURESTAKE_API_KEY = process.env["PURESTAKE_API_KEY"];
 const ALGOD_API_TOKEN = {
   "X-API-Key": PURESTAKE_API_KEY,
 };
 
-const algodClient = new algosdk.Algodv2(
-  ALGOD_API_TOKEN,
-  ALGOD_API_ADDR,
-  ALGOD_PORT
-);
-const algoIndexerClient = new algosdk.Indexer(
-  ALGOD_API_TOKEN,
-  ALGOD_API_ADDR,
-  ALGOD_PORT
-);
+export const algodClient = new algosdk.Algodv2(ALGOD_API_TOKEN, ALGOD_API_ADDR, ALGOD_PORT);
+export const algoIndexerClient = new algosdk.Indexer(ALGOD_API_TOKEN, ALGOD_INDEXER_ADDR, ALGOD_PORT);
 
-const sender = "CPBVPZNKFOVIHGG4EDX3PRJ7NDYLKL5RL3JIK2X5HZXVGKDY4E65W62TPM";
-
-// Setup Account
 const mnemonic = process.env["MNEMONIC"];
-const rewardProviderAccount = algosdk.mnemonicToSecretKey(
-  mnemonic
-);
+const rewardProviderAccount = algosdk.mnemonicToSecretKey(mnemonic);
 
-export async function sendAsset(address, amount) {
+export function calculateMultiplier(tokenHolding) {
+  const c = 70;
+  return 1 + (Math.log10(tokenHolding + 1) * c) / 100;
+}
+
+export async function getUserTokenHolding(address) {
+  const assetId = 402192759;
   try {
-    // Fetch account details
-    const accountInfo = await algodClient.accountInformation(sender).do();
+    const response = await algoIndexerClient.lookupAssetBalances(assetId).do();
+    for (let balanceInfo of response.balances) {
+      if (balanceInfo.address === address) {
+        return balanceInfo.amount;
+      }
+    }
+    return 0;
+  } catch (error) {
+    console.error('Error fetching user token balance:', error);
+    return 0;
+  }
+}
+
+export async function sendAsset(address, baseAmount) {
+  try {
+    const userHolding = await getUserTokenHolding(address);
+    const rewardMultiplier = calculateMultiplier(userHolding);
+    const finalRewardAmount = Math.round(baseAmount * rewardMultiplier);
+
+    console.log(`Computed reward amount: ${finalRewardAmount}`);
+
     const suggestedParams = await algodClient.getTransactionParams().do();
 
-    // Create an asset transfer transaction
     const txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
       rewardProviderAccount.addr,
       address,
-      undefined, // Close-to address (none in this case)
-      undefined, // Sender's address, in case of clawback (none in this case)
-      amount,
+      undefined,
+      undefined,
+      finalRewardAmount,
       algosdk.encodeObj("Sending ASA PHTM"),
-      402192759, // Asset ID of the ASA you want to send
+      402192759,
       suggestedParams
     );
 
-    // Sign the transaction
     const signedTxn = algosdk.signTransaction(txn, rewardProviderAccount.sk);
-
-    // Send the transaction
     const txConfirmation = await algodClient.sendRawTransaction(signedTxn.blob).do();
 
     console.log("Transaction ID:", txConfirmation.txId);
