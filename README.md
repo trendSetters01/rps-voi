@@ -36,6 +36,13 @@ Interact with the bot using the following slash commands in Discord:
 
 Tests are implemented using the Jest framework. Run the entire test suite using the `npm test` command.
 
+## To-Do
+
+- [ ] Complete tests for all bot functionalities.
+  - [ ] Test core Rock-Paper-Scissors game mechanics.
+  - [ ] Ensure successful integration with Discord and Algorand.
+  - [ ] Conduct security testing to safeguard against vulnerabilities.
+
 ## License
 
 ISC
