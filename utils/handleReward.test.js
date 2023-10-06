@@ -1,8 +1,8 @@
 import { handleReward } from './index.js';
-import * as algorand from '../algorand/algorand.js';
+import * as algorand from '../algorand/transactions.js';
 import * as state from '../state/index.js';
 
-jest.mock('../algorand/algorand.js');
+jest.mock('../algorand/transactions.js');
 jest.mock('../state/index.js');
 
 describe('handleReward', () => {
