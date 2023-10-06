@@ -1,6 +1,6 @@
 import { algoIndexerClient } from './config.js';
 
-const assetId = parseInt(process.env['ASSET_ID'], 10);
+const assetId = parseInt(process.env['PHTM_ASSET_ID'], 10);
 
 export async function getUserTokenHolding(address) {
   try {
