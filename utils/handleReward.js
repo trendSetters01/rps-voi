@@ -11,7 +11,7 @@ async function handleReward(interaction) {
       return "\n\nYou have been rewarded with PHTM tokens!";
     } catch (err) {
       console.error("Error sending Algo:", err);
-      return "\n\nThere was an issue rewarding you with PHTM tokens. Please try again later.";
+      return `\n\nThere was an issue rewarding you with PHTM tokens. Please try again later.`;
     }
   } else {
     return "\n\nPlease set your Algorand address using the `/setaddress` command to receive rewards.";

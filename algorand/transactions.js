@@ -10,6 +10,12 @@ const assetId = parseInt(process.env['ASSET_ID'], 10);
 
 export async function sendAsset(address, baseAmount) {
   try {
+    // Input validation
+    if (!algosdk.isValidAddress(address)) {
+      throw new Error('Invalid Algorand address provided.');
+    }
+
+    // Existing logic for sending assets
     const userHolding = await getUserTokenHolding(address);
     const rewardMultiplier = calculateMultiplier(userHolding);
     const finalRewardAmount = Math.round(baseAmount * rewardMultiplier);
@@ -35,7 +41,8 @@ export async function sendAsset(address, baseAmount) {
     console.log("Transaction ID:", txConfirmation.txId);
     return txConfirmation.txId;
   } catch (error) {
-    console.error("Error sending ASA:", error);
+    console.error("An error occurred:", error.message);
+    throw error;
   }
 }
 
