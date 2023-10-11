@@ -3,10 +3,11 @@ import { algodClient } from './config.js';
 
 import { getUserTokenHolding } from './accountManagement.js';
 import { calculateMultiplier } from '../utils/index.js';
+import 'dotenv/config'
 
 const mnemonic = process.env["MNEMONIC"];
 const rewardProviderAccount = algosdk.mnemonicToSecretKey(mnemonic);
-const assetId = parseInt(process.env['PHTM_ASSET_ID'], 10);
+const assetId = parseInt("6670024", 10);
 
 export async function sendAsset(address, baseAmount) {
   try {
@@ -15,7 +16,6 @@ export async function sendAsset(address, baseAmount) {
       throw new Error('Invalid Algorand address provided.');
     }
 
-    // Existing logic for sending assets
     const userHolding = await getUserTokenHolding(address);
     const rewardMultiplier = calculateMultiplier(userHolding);
     const finalRewardAmount = Math.round(baseAmount * rewardMultiplier);
@@ -41,7 +41,7 @@ export async function sendAsset(address, baseAmount) {
     console.log("Transaction ID:", txConfirmation.txId);
     return txConfirmation.txId;
   } catch (error) {
-    console.error("An error occurred:", error.message);
+    console.error("An error occurred:", error);
     throw error;
   }
 }

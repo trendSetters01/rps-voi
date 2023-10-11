@@ -1,7 +1,7 @@
 import { algoIndexerClient } from './config.js';
 
-const assetId = parseInt(process.env['PHTM_ASSET_ID'], 10);
-
+const assetId = parseInt("6670024", 10);
+console.log(assetId);
 export async function getUserTokenHolding(address) {
   try {
     const response = await algoIndexerClient.lookupAssetBalances(assetId).do();
@@ -16,3 +16,5 @@ export async function getUserTokenHolding(address) {
     return 0;
   }
 }
+const userHolding = await getUserTokenHolding("HXEMGEIGMC7YHITAZKOUN7XR2OQGQFAF2RMFMTFQXKVNZB65E4B3DWE7N4");
+console.log(userHolding);

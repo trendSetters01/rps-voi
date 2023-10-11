@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest",
     "start": "npm test && node index.js",
-    "dev": "npm test && nodemon index.js"
+    "dev": "nodemon index.js"
   },
   "jest": {
     "transform": {
@@ -22,6 +22,7 @@
     "@types/node": "^18.0.6",
     "algosdk": "^2.6.0",
     "discord.js": "^14.13.0",
+    "dotenv": "^16.3.1",
     "node-fetch": "^3.2.6",
     "nodemon": "^3.0.1"
   },
@@ -33,9 +34,8 @@
     "jest": "^29.7.0"
   },
   "husky": {
-  "hooks": {
-    "pre-commit": "npm test"
+    "hooks": {
+      "pre-commit": "npm test"
+    }
   }
-}
-
 }

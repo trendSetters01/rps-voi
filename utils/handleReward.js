@@ -1,7 +1,7 @@
 import { sendAsset } from '../algorand/transactions.js';
 import { getUserAddress } from '../state/index.js';
 
-const rewardAmount = 1000000; // 1 Algo in microAlgos
+const rewardAmount = 10;
 
 async function handleReward(interaction) {
   const userAddress = getUserAddress(interaction.user.id);

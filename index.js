@@ -1,8 +1,8 @@
 import { Client, IntentsBitField } from "discord.js";
 import { handleInteraction } from "./handlers/index.js";
+import 'dotenv/config'
 
 const token = process.env["BOT_TOKEN"];
-
 const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
