@@ -1,4 +1,5 @@
 import algosdk from "algosdk";
+import 'dotenv/config'
 
 const ALGOD_API_ADDR = "https://testnet-api.voi.nodly.io";
 const ALGOD_PORT = "";
@@ -8,7 +9,7 @@ const ALGOD_API_TOKEN = {
 const algodClient = new algosdk.Algodv2(ALGOD_API_TOKEN, ALGOD_API_ADDR, ALGOD_PORT);
 
 async function createASA() {
-  const passphrase = "auction witness pumpkin hub clinic useless custom elephant actor angle utility void dwarf write silly script hurdle laptop work mistake warm hollow diagram above custom";//process.env["MNEMONIC"]; // Keep this secure!
+  const passphrase = process.env["MNEMONIC"];
   const myAddress = algosdk.mnemonicToSecretKey(passphrase).addr;
   const mySk = algosdk.mnemonicToSecretKey(passphrase).sk;
   console.log("My address:", passphrase);
