@@ -1,8 +1,8 @@
 
-# Rock-Paper-Scissors Discord Bot with Algorand Integration
+# Rock-Paper-Scissors Discord Bot with VOI Integration
 
 ## Description
-This project features a Discord bot that allows users to play the classic Rock-Paper-Scissors game directly within Discord. The bot also integrates with the Algorand blockchain, offering extended features such as asset interactions.
+This project features a Discord bot that allows users to play the classic Rock-Paper-Scissors game directly within Discord. The bot also integrates with the VOI blockchain, offering extended features such as asset interactions.
 
 ## Setup and Installation
 
@@ -18,13 +18,13 @@ Interact with the bot using the following slash commands in Discord:
 - `/invite`: Generate an invite link to add this bot to your Discord server.
 - `/optin`: Opt-in to interact with the PHTM asset (feature currently inactive).
 - `/rps`: Initiate a Rock, Paper, Scissors game.
-- `/setaddress`: Register your Algorand address (Testnet).
+- `/setaddress`: Register your VOI address (Testnet).
 
 ## Dependencies and Development Tools
 
 ### Main Dependencies:
 - `discord.js`: For Discord API interactions and bot functionalities.
-- `algosdk`: SDK to integrate with the Algorand blockchain.
+- `algosdk`: SDK to integrate with the VOI blockchain.
 - `nodemon`: Tool to automatically restart the node application during development.
 
 ### Development Dependencies:
@@ -40,7 +40,7 @@ Tests are implemented using the Jest framework. Run the entire test suite using 
 
 - [ ] Complete tests for all bot functionalities.
   - [ ] Test core Rock-Paper-Scissors game mechanics.
-  - [ ] Ensure successful integration with Discord and Algorand.
+  - [ ] Ensure successful integration with Discord and VOI.
   - [ ] Conduct security testing to safeguard against vulnerabilities.
 
 ## License
@@ -49,4 +49,4 @@ ISC
 
 ## Acknowledgements
 
-A shoutout to the Algorand team for their comprehensive resources and documentation, which facilitated the integration of their blockchain platform into this project.
+A shoutout to the VOI team for their comprehensive resources and documentation, which facilitated the integration of their blockchain platform into this project.
