@@ -12,7 +12,7 @@ async function createASA() {
   const passphrase = process.env["MNEMONIC"];
   const myAddress = algosdk.mnemonicToSecretKey(passphrase).addr;
   const mySk = algosdk.mnemonicToSecretKey(passphrase).sk;
-  console.log("My address:", passphrase);
+  
   // Get the suggested transaction parameters
   const suggestedParams = await algodClient.getTransactionParams().do();
 
